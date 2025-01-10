@@ -4,9 +4,9 @@ const app = express();
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+ const authRouter= require('./routes/auth-routes/auth-routes');
 
-
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 app.use(cors({
     'origin': 'http://localhost:5173',
@@ -22,6 +22,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/api/auth', authRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
