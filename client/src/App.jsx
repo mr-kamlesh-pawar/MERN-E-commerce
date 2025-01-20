@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
@@ -27,6 +27,12 @@ function App() {
     const {isAuthenticated, user,isLoading} = useSelector((state) => state.auth);
 
     const dispatch= useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+  
+    if (location.pathname === "/") {
+      navigate("/shop/home");
+    }
 
     useEffect(()=> {
       dispatch(checkAuth());
@@ -56,7 +62,6 @@ console.log(isLoading, user);
         </Route>
 
 
-
         <Route path="/admin" element={
                     <CheckAuth isAuthenticated={isAuthenticated} user={user}>
                       <AdminLayout />
@@ -68,9 +73,6 @@ console.log(isLoading, user);
           <Route path="features" element={<AdminFeatures />} />
         </Route>
 
-
-
-
         <Route path="/shop" element={
                     <CheckAuth isAuthenticated={isAuthenticated} user={user}>
                       <ShoppingLayout />
@@ -80,10 +82,11 @@ console.log(isLoading, user);
           <Route path="home" element={<ShoppingHome />} />
           <Route path="listing" element={<ShoppingListing />} />
           <Route path="checkout" element={<ShoppingCheckout />} />
-        </Route>
+        </Route>  
 
         <Route path="*" element={<NotFound />} />
         <Route path="/unauth-page" element={<UnAuthPage/>} />
+       
       </Routes>
     </div>
   );

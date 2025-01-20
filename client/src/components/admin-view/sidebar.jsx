@@ -73,7 +73,7 @@ const AdminSideBar = ({ open, setOpen }) => {
           <ChartNoAxesCombined size={30} />
           <h1 className="text-2xl font-extrabold">Admin Panel</h1>
         </div>
-        {MenuItem()}
+         {MenuItem(setOpen={setOpen})} 
       </aside>
     </Fragment>
   );
