@@ -4,8 +4,9 @@ import { Input } from '../ui/input'
 import { FileIcon, UploadCloudIcon, XIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import axios from 'axios';
+import { Skeleton } from '../ui/skeleton';
 
-const ProductImageUpload = ({imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl}) => {
+const ProductImageUpload = ({imageFile, setImageFile, uploadedImageUrl, setUploadedImageUrl, setImageLoadingState, imageLoadingState}) => {
 
     const inputRef= useRef(null);
 
@@ -38,16 +39,29 @@ const ProductImageUpload = ({imageFile, setImageFile, uploadedImageUrl, setUploa
     }
 
     async function uploadImageToCloudinary() {
+      setImageLoadingState(true);
+      
       const data= new FormData();
       data.append('my_file', imageFile);
       const response= await axios.post('http://localhost:5000/api/admin/products/upload-image', data);
 
       console.log("data:", data);
-      console.log("response form cloudinary: ",response);
-      if(response?.data?.success){
-        setUploadedImageUrl(response.data.result.secure_url);
+      console.log("Response from Cloudinary: ", response);
 
+      if (response?.data?.success) {
+        const secureUrl = response.data?.data?.secure_url;
+        if (secureUrl) {
+          setUploadedImageUrl(secureUrl);
+          setImageLoadingState(false);
+        } else {
+          console.error("Secure URL not found in the response.");
+          setImageLoadingState(false);
+        }
+      } else {
+        console.error("Image upload failed:", response?.data?.message || "Unknown error");
+        setImageLoadingState(false);
       }
+      
     }
 
     useEffect(()=>{
@@ -65,12 +79,15 @@ const ProductImageUpload = ({imageFile, setImageFile, uploadedImageUrl, setUploa
 
         {
             !imageFile ?
-            <Label htmlFor="image-upload" className="flex flex-col items-center justify-center h-32 cursor-pointer">
+            (<Label htmlFor="image-upload" className="flex flex-col items-center justify-center h-32 cursor-pointer">
                 <UploadCloudIcon className='h-10 w-10 text-muted-foreground mb-2'/>
                 <span> Drag & Drop or click to upload image</span>
 
-                 </Label>
-            : <div className='flex items-center justify-between'>
+                 </Label> )
+            : 
+            
+              imageLoadingState ? ( <Skeleton className="h-10 bg-gray-100" /> ): (
+            <div className='flex items-center justify-between'>
                 
                     <div className='flex items-center'>
                         <FileIcon className='w-8 '/>
@@ -81,8 +98,11 @@ const ProductImageUpload = ({imageFile, setImageFile, uploadedImageUrl, setUploa
                       <XIcon className='w-4 h-4 text-white'/>
                       <span className='sr-only'>Remove File</span>
                        </Button>
-                 </div>
+                 </div> 
+                 )
         }
+
+
       </div>
     </div>
   )
